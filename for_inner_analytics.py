@@ -71,6 +71,9 @@ print('--' * 40)
 param_1 = proportion_yes_control*(1-proportion_yes_control) / answered_control #Оценка дисперсии оценки доли "Yes" для control
 param_2 = proportion_yes_exposed * (1 - proportion_yes_exposed) / answered_exposed #Оценка дисперсии оценки доли "Yes" для exposed
 
+error_control = z_alpha * param_1
+error_exposed = z_alpha * param_2
+
 se = (param_1 + param_2)**0.5 #Стандартная ошибка разницы долей для CI
 
 margin_of_error = z_alpha * se
