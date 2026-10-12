@@ -12,33 +12,19 @@ H1: p_control != p_exposed (креатив меняет долю "Yes")
 Уровень значимости (условный): alpha = 0.05
 """
 
+from constants_and_functions import *
 import pandas as pd
 from scipy import stats
-from scipy.stats import norm
 
 main_dataset = pd.read_csv('ad_smart_data.csv')
 
-'''Функция выводящая всю важную информацию датасета'''
-def show_full_info(dataset):
-    dataset.info()
-    print()
-    unique_number = dataset.nunique()
-    print(unique_number)
-
-'''Функция подсчета суммы для определенной категории'''
-def sum_answers(dataset, column_grouped, agg_column):
-    return dataset.groupby(column_grouped)[agg_column].sum()
-
-
 sum_yes_grouped = sum_answers(main_dataset, 'experiment', 'yes') #Группировка "Yes" по control и exposed
 sum_no_grouped = sum_answers(main_dataset, 'experiment', 'no') #Группировка "No" по control и exposed
-
 
 answered_control = sum_yes_grouped['control'] + sum_no_grouped['control'] #Общее число ответивших в control
 answered_exposed = sum_yes_grouped['exposed'] + sum_no_grouped['exposed'] #Общее число ответивших в exposed
 print(f'Число ответивших в группе control: {answered_control}')
 print(f'Число ответивших в группе exposed: {answered_exposed}')
-print('--' * 40)
 
 only_yes_control = sum_yes_grouped['control'] #Ответившие "Yes" в control
 only_yes_exposed = sum_yes_grouped['exposed'] #Ответившие "Yes" в exposed
@@ -54,25 +40,16 @@ delta = proportion_yes_exposed - proportion_yes_control
 print(f'Точечная оценка равна {round(delta, 5)}')
 print('--' * 40)
 
-alpha = 0.05
-power = 0.8
-
-z_alpha = norm.ppf(1 - alpha / 2)
-z_beta = norm.ppf(power)
-
 p_pool = (only_yes_control + only_yes_exposed) / (answered_control + answered_exposed) #Доля всех "Yes" ко всем ответившим
 print(f'p_pool = {p_pool}')
 
 minimum_detectable_effect = (z_alpha + z_beta) * (p_pool * (1-p_pool) * (1/answered_control + 1/answered_exposed ))**0.5
 #Минимальный размер эффекта, который тест способен обнаружить
-print(f'mde = {minimum_detectable_effect}')
+print(f'mde = {minimum_detectable_effect}% ({round(minimum_detectable_effect * 100, 1)} п.п.)')
 print('--' * 40)
 
 param_1 = proportion_yes_control*(1-proportion_yes_control) / answered_control #Оценка дисперсии оценки доли "Yes" для control
 param_2 = proportion_yes_exposed * (1 - proportion_yes_exposed) / answered_exposed #Оценка дисперсии оценки доли "Yes" для exposed
-
-error_control = z_alpha * param_1
-error_exposed = z_alpha * param_2
 
 se = (param_1 + param_2)**0.5 #Стандартная ошибка разницы долей для CI
 
