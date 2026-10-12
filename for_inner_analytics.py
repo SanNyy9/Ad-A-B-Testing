@@ -25,6 +25,7 @@ answered_control = sum_yes_grouped['control'] + sum_no_grouped['control'] #Об�
 answered_exposed = sum_yes_grouped['exposed'] + sum_no_grouped['exposed'] #Общее число ответивших в exposed
 print(f'Число ответивших в группе control: {answered_control}')
 print(f'Число ответивших в группе exposed: {answered_exposed}')
+print('--' * 40)
 
 only_yes_control = sum_yes_grouped['control'] #Ответившие "Yes" в control
 only_yes_exposed = sum_yes_grouped['exposed'] #Ответившие "Yes" в exposed
