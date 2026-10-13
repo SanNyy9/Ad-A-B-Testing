@@ -15,8 +15,31 @@ H1: p_control != p_exposed (креатив меняет долю "Yes")
 from constants_and_functions import *
 import pandas as pd
 from scipy import stats
+from scipy.stats import chisquare
 
 main_dataset = pd.read_csv('ad_smart_data.csv')
+
+counts = main_dataset['experiment'].value_counts().sort_index()
+total_count = counts.sum()
+expected_counts = [total_count / 2, total_count / 2]
+
+chi2_srm, p_value_srm = chisquare(f_obs=counts.values, f_exp=expected_counts)
+
+srm = [
+    round(counts['control'] / total_count * 100, 2),
+    round(counts['exposed'] /total_count* 100, 2)
+]
+print(f'Всего наблюдений: {total_count}')
+print(f'control = {counts["control"]}, exposed = {counts["exposed"]}')
+print('--' * 40)
+print("SRM-проверка", f'Ожидаемое соотношение control / exposed: 50 / 50.', f'Фактическое: {srm[0]}% / {srm[1]}%.', sep='\n')
+print(f'p_value = {p_value_srm}')
+if p_value_srm < 0.001:
+    print(f'SRM обнаружен — результатам теста доверять нельзя.')
+
+else:
+    print('SRM не обнаружен — рандомизация корректна, можно переходить к анализу метрики.')
+print('--' * 40)
 
 sum_yes_grouped = sum_answers(main_dataset, 'experiment', 'yes') #Группировка "Yes" по control и exposed
 sum_no_grouped = sum_answers(main_dataset, 'experiment', 'no') #Группировка "No" по control и exposed
@@ -69,6 +92,8 @@ table = pd.DataFrame(
 
 chi2, p_value, dof, expected = stats.chi2_contingency(table)
 
+
+print('--' * 40)
 print('Доверительным интервалом в данной выборке будет являться промежуток:', f'[{delta_negative}:{delta_positive}]', sep='\n')
 print('--' * 40)
 print(f'p-value для данной выборки будет являться {p_value}')
